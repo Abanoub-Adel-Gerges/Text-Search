@@ -22,28 +22,28 @@ public class SearchQuery {
     public SearchQuery(){}
     public void readInputFromConsole(){
         Printer.println("Enter case sensitive type(i, s): ", ConsoleColors.GREEN);
-        caseSensitive = scanner.next().charAt(0);
+        caseSensitive = scanner.nextLine().toLowerCase().charAt(0);
         while (caseSensitive != 's' && caseSensitive != 'i'){
             Printer.println("Enter case sensitive type(i, s): ", ConsoleColors.GREEN);
-            caseSensitive = scanner.next().charAt(0);
+            caseSensitive = scanner.nextLine().toLowerCase().charAt(0);
         }
 
         Printer.println("Enter keyword: ", ConsoleColors.GREEN);
-        keyword = scanner.next();
+        keyword = scanner.nextLine();
 
-        Printer.println("Enter replace-target (if there is not enter #): ", ConsoleColors.GREEN);
-        replaceTarget = scanner.next();
-        if(replaceTarget.equals("#")){replaceTarget = null;}
+        Printer.println("Enter replace-target (if there is not just press enter): ", ConsoleColors.GREEN);
+        replaceTarget = scanner.nextLine();
+        if(replaceTarget.equals("")){replaceTarget = null;}
 
         Printer.println("Enter match mode (prefix, substring, whole): ", ConsoleColors.GREEN);
-        matchMode = scanner.next();
-        switch (matchMode.toLowerCase()){
+        matchMode = scanner.nextLine().toLowerCase();
+        switch (matchMode){
             case "prefix" : matchMode = MatchMode.PREFIX; break;
             case "substring" : matchMode = MatchMode.SUBSTRING; break;
             default: matchMode = MatchMode.WHOLE; break;
         }
         Printer.println("Enter output path: ", ConsoleColors.GREEN);
-        setOutputPath(scanner.next());
+        setOutputPath(scanner.nextLine());
     }
     public void setOutputPath(String outputPath) {
         if (FileHelper.exists(outputPath)){
@@ -66,5 +66,9 @@ public class SearchQuery {
     }
     public String getOutputPath() {
         return outputPath;
+    }
+
+    public String getReplaceTarget() {
+        return replaceTarget;
     }
 }

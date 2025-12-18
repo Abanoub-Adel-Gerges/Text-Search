@@ -1,145 +1,119 @@
+import suffixautomaton.SuffixAutomaton;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.TreeSet;
 public class StringSearcher {
     private final String originalText;
-    private final String normalizedText; // Lowercase
-    private final List<Integer> lineStartIndices;
+    private final ArrayList<Integer> lineStarts;
+    private final SuffixAutomaton samSensitive;
+    private final SuffixAutomaton samInsensitive;
     public StringSearcher(String text) {
         this.originalText = text;
-        this.normalizedText = text.toLowerCase();
-        this.lineStartIndices = new ArrayList<>();
-        lineStartIndices.add(0);
-        for (int i = 0; i < text.length(); i++) {
-            if (text.charAt(i) == '\n' || text.charAt(i) == '\r') {
-                if (i + 1 < text.length() && text.charAt(i + 1) != '\n' && text.charAt(i + 1) != '\r') {
-                    lineStartIndices.add(i + 1);
-                } else if (i + 1 < text.length() && text.charAt(i) == '\r' && text.charAt(i+1) == '\n') {
-                    lineStartIndices.add(i + 2);
-                    i++;
-                }
-            }
-        }
-    }
-    private int getLineNumber(int textIndex) {
-        for (int i = lineStartIndices.size() - 1; i >= 0; i--) {
-            if (textIndex >= lineStartIndices.get(i)) {
-                return i + 1;
-            }
-        }
-        return 1;
-    }
-    private int[] computeLPSArray(String pattern) {
-        int m = pattern.length();
-        int[] lps = new int[m];
-        int length = 0;
-        int i = 1;
-        lps[0] = 0;
-        while (i < m) {
-            if (pattern.charAt(i) == pattern.charAt(length)) {
-                length++;
-                lps[i] = length;
-                i++;
-            } else {
-                if (length != 0) {
-                    length = lps[length - 1];
-                } else {
-                    lps[i] = 0;
-                    i++;
-                }
-            }
-        }
-        return lps;
-    }
-    public List<Integer> KMPsearch(String text, String pattern) {
-        List<Integer> occurrences = new ArrayList<>();
-        int N = text.length();
-        int M = pattern.length();
-        if (M == 0) return occurrences;
-        if (N == 0) return occurrences;
-        int[] lps = computeLPSArray(pattern);
-        int i = 0;
-        int j = 0;
-        while (i < N) {
-            if (pattern.charAt(j) == text.charAt(i)) {
-                i++;
-                j++;
-            }
-            if (j == M) {
-                occurrences.add(i - j);
-                j = lps[j - 1];
-            } else if (i < N && pattern.charAt(j) != text.charAt(i)) {
-                if (j != 0) {
-                    j = lps[j - 1];
-                } else {
-                    i++;
-                }
-            }
-        }
-        return occurrences;
-    }
-    public List<SearchMatch> search(SearchQuery query) {
-        List<SearchMatch> results = new ArrayList<>();
-        String keyword = query.getKeyword();
-        if (keyword == null || keyword.isEmpty()) {
-            return results;
-        }
-        String searchText = (query.isCaseSensitive()) ? originalText : normalizedText;
-        String searchPattern = (query.isCaseSensitive()) ? keyword : keyword.toLowerCase();
-        if (query.getMatchMode().equals(MatchMode.SUBSTRING)) {
-            // Use KMP for O(N+M) substring search
-            List<Integer> indices = KMPsearch(searchText, searchPattern);
-            for (int index : indices) {
-                String matchedText = originalText.substring(index, index + keyword.length());
-                int lineNumber = getLineNumber(index);
-                results.add(new SearchMatch(lineNumber, index, matchedText));
-            }
-        } else if (query.getMatchMode().equals(MatchMode.WHOLE) || query.getMatchMode().equals(MatchMode.PREFIX)) {
-            String patternString;
-            if (query.getMatchMode().equals(MatchMode.WHOLE)) {
-                patternString = "\\b" + Pattern.quote(keyword) + "\\b";
-            } else { // PREFIX
-                patternString = "\\b" + Pattern.quote(keyword);
-            }
-            Pattern pattern = Pattern.compile(patternString, query.isCaseSensitive() ? 0 : Pattern.CASE_INSENSITIVE);
-            Matcher matcher = pattern.matcher(originalText);
-            while (matcher.find()) {
-                int index = matcher.start();
-                String matchedText = matcher.group();
-                int lineNumber = getLineNumber(index);
-                results.add(new SearchMatch(lineNumber, index, matchedText));
-            }
+        this.lineStarts = computeLineStarts(text);
 
+        // O(n) Build
+        samSensitive = new SuffixAutomaton(text.length());
+        samInsensitive = new SuffixAutomaton(text.length());
+
+        samSensitive.build(text);
+        samInsensitive.build(text.toLowerCase());
+    }
+    private ArrayList<Integer> computeLineStarts(String t) {
+        ArrayList<Integer> res = new ArrayList<>();
+        res.add(0);
+        for (int i = 0; i < t.length(); i++) {
+            if (t.charAt(i) == '\n') {
+                res.add(i + 1);
+            }
+        }
+        return res;
+    }
+    private int getLine(int index) {
+        int l = 0, r = lineStarts.size() - 1, ans = 0;
+        while (l <= r) {
+            int m = (l + r) / 2;
+            if (lineStarts.get(m) <= index) {
+                ans = m;
+                l = m + 1;
+            } else r = m - 1;
+        }
+        return ans + 1;
+    }
+    public ArrayList<SearchMatch> search(SearchQuery sq) {
+        if (sq.getKeyword() == null || sq.getKeyword().isEmpty()) {
+            return new ArrayList<>();
+        }
+        ArrayList<SearchMatch> results = new ArrayList<>();
+        String keyword = sq.getKeyword().trim();
+        String lookupKey = sq.isCaseSensitive() ? keyword : keyword.toLowerCase();
+        SuffixAutomaton sam = sq.isCaseSensitive() ? samSensitive : samInsensitive;
+        // O(k) Find all raw occurrences
+        ArrayList<Integer> rawPositions = sam.findOccurrences(lookupKey);
+        // Ensure unique positions and sort them to maintain file order
+        TreeSet<Integer> uniquePos = new TreeSet<>(rawPositions);
+
+        for (int pos : uniquePos) {
+            if (isValidMatch(pos, lookupKey.length(), sq.getMatchMode())) {
+                int lineNum = getLine(pos);
+                int colNum = pos - lineStarts.get(lineNum - 1);
+
+                results.add(new SearchMatch(
+                        lineNum,
+                        colNum,
+                        originalText.substring(pos, pos + lookupKey.length())
+                ));
+            }
         }
         return results;
     }
-    public String replaceAndHighlight(List<SearchMatch> matches, String replaceTarget, String highlightStart, String highlightEnd) {
-        if (matches.isEmpty() && replaceTarget == null) {
-            return originalText;
-        }
-        StringBuilder result = new StringBuilder(originalText);
-        matches.sort((m1, m2) -> Integer.compare(m2.startIndex, m1.startIndex));
+    private boolean isValidMatch(int pos, int len, String mode) {
+        if (mode.equals(MatchMode.SUBSTRING)) return true;
+        boolean startBoundary = (pos == 0 || !Character.isLetterOrDigit(originalText.charAt(pos - 1)));
+        boolean endBoundary = (pos + len >= originalText.length() || !Character.isLetterOrDigit(originalText.charAt(pos + len)));
+        if (mode.equals(MatchMode.PREFIX)) return startBoundary;
+        if (mode.equals(MatchMode.WHOLE)) return startBoundary && endBoundary;
 
-        for (SearchMatch match : matches) {
-            int start = match.startIndex;
-            int end = match.startIndex + match.matchedText.length();
-            String highlightedText = highlightStart + match.matchedText + highlightEnd;
-            result.replace(start, end, highlightedText);
-        }
-        return result.toString();
+        return false;
     }
-    public String performReplacement(List<SearchMatch> matches, String replaceTarget) {
-        if (replaceTarget == null || matches.isEmpty()) {
-            return originalText;
+    public String getHighlightedText(ArrayList<SearchMatch> matches) {
+        StringBuilder sb = new StringBuilder(originalText);
+        // Work backwards to not invalidate indices
+        for (int i = matches.size() - 1; i >= 0; i--) {
+            SearchMatch m = matches.get(i);
+            // We need the absolute index. Calculation: lineStart + column
+            int absIdx = lineStarts.get(m.lineNumber - 1) + m.startIndex;
+            sb.insert(absIdx + m.matchedText.length(), "$");
+            sb.insert(absIdx, "$");
         }
-        StringBuilder result = new StringBuilder(originalText);
-        matches.sort((m1, m2) -> Integer.compare(m2.startIndex, m1.startIndex));
-        for (SearchMatch match : matches) {
-            int start = match.startIndex;
-            int end = match.startIndex + match.matchedText.length();
-            result.replace(start, end, replaceTarget);
+        return sb.toString();
+    }
+    public void printHighlightedText(ArrayList<SearchMatch> matches) {
+        if (matches == null || matches.isEmpty()) {
+            Printer.print(originalText, ConsoleColors.PURPLE);
+            return;
         }
-        return result.toString();
+        int lastIndex = 0;
+        for (SearchMatch m : matches) {
+            int matchStart = lineStarts.get(m.lineNumber - 1) + m.startIndex;
+            int matchEnd = matchStart + m.matchedText.length();
+            if (matchStart > lastIndex) {
+                Printer.print(originalText.substring(lastIndex, matchStart), ConsoleColors.PURPLE);
+            }
+            Printer.print(originalText.substring(matchStart, matchEnd), ConsoleColors.BRIGHT_RED);
+            lastIndex = matchEnd;
+        }
+        if (lastIndex < originalText.length()) {
+            Printer.print(originalText.substring(lastIndex), ConsoleColors.PURPLE);
+        }
+        Printer.println();
+    }
+    public String getReplacedText(ArrayList<SearchMatch> matches, String replacement) {
+        if (replacement == null) return originalText;
+        StringBuilder sb = new StringBuilder(originalText);
+        for (int i = matches.size() - 1; i >= 0; i--) {
+            SearchMatch m = matches.get(i);
+            int absIdx = lineStarts.get(m.lineNumber - 1) + m.startIndex;
+            sb.replace(absIdx, absIdx + m.matchedText.length(), replacement);
+        }
+        return sb.toString();
     }
 }

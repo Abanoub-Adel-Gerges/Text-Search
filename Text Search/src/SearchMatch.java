@@ -9,6 +9,6 @@ public class SearchMatch {
     }
     @Override
     public String toString() {
-        return "Line: " + lineNumber + ", Index: " + startIndex + ", Match: \"" + matchedText + "\"";
+        return "{Line: " + lineNumber + ", Index: " + startIndex + ", Match: \"" + matchedText + "\"}";
     }
 }

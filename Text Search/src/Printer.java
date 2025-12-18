@@ -1,4 +1,5 @@
 public class Printer {
+    public static String separator = "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-";
     public static void print(Object obj){
         System.out.print(obj);
     }
@@ -15,9 +16,6 @@ public class Printer {
         System.out.println(color + obj + ConsoleColors.RESET);
     }
     public static void printSeparator(){
-        for(int i = 0; i < 100; i++) {
-            print((i % 2 == 0)?"=":"-", ConsoleColors.BRIGHT_BLUE + ConsoleColors.BOLD);
-        }
-        print("\n");
+        println(separator, ConsoleColors.BRIGHT_BLUE + ConsoleColors.BOLD);
     }
 }

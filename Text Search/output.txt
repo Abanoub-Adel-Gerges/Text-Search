@@ -1,1 +1,36 @@
-[Line: 2, Index: 26, Match: "ew", Line: 9, Index: 158, Match: "ew"]
+Query 1 Result
+Search time: 0.4305 ms
+Count: 2
+Matches: [{Line: 2, Index: 0, Match: "ew"}, {Line: 9, Index: 30, Match: "ew"}]
+aff ag rg r gwe e er wet
+$ew$t ry t
+rt r
+t r
+j ytj ty ty 
+j tyj ty ty jtu ku hgfd twqw e 
+we
+e werwetr ery y rt yrt rtht 
+ey r rt hrthrgwe flweknflwe fl$ew$ flmwg tf
+6rth tr ht r
+th
+th
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Query 2 Result
+Search time: 0.0439 ms
+Count: 2
+Matches: [{Line: 2, Index: 0, Match: "ew"}, {Line: 9, Index: 30, Match: "ew"}]
+Replace time: 0.0171 ms
+
+aff ag rg r gwe e er wet
+^^t ry t
+rt r
+t r
+j ytj ty ty 
+j tyj ty ty jtu ku hgfd twqw e 
+we
+e werwetr ery y rt yrt rtht 
+ey r rt hrthrgwe flweknflwe fl^^ flmwg tf
+6rth tr ht r
+th
+th
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
