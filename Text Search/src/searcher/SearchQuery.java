@@ -1,3 +1,6 @@
+package searcher;
+import printer.*;
+import helpers.*;
 import java.util.Scanner;
 public class SearchQuery {
     private static final Scanner scanner = new Scanner(System.in);

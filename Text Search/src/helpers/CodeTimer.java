@@ -1,3 +1,7 @@
+package helpers;
+
+import printer.Printer;
+
 public class CodeTimer {
     public static long measureTimeNano(Runnable code){
         long before = System.nanoTime();

@@ -1,4 +1,6 @@
+package searcher;
 import suffixautomaton.SuffixAutomaton;
+import printer.*;
 import java.util.ArrayList;
 import java.util.TreeSet;
 public class StringSearcher {

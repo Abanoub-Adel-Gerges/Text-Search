@@ -1,3 +1,5 @@
+package searcher;
+
 public class SearchMatch {
     public final int lineNumber;
     public final int startIndex;

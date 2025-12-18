@@ -1,3 +1,5 @@
+package helpers;
+
 import java.io.*;
 public class FileHelper {
     public static String readFromFile(String path) {

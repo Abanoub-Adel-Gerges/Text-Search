@@ -1,3 +1,5 @@
+package printer;
+
 public class Printer {
     public static String separator = "=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-";
     public static void print(Object obj){

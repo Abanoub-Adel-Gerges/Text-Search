@@ -1,8 +1,18 @@
+import helpers.*;
+import printer.*;
+import searcher.*;
+
+import javax.swing.*;
 import java.util.Scanner;
 import java.util.ArrayList;
 public class Project {
-    public static void consoleProject(){
-        Scanner scanner = new Scanner(System.in);
+    public static final Scanner scanner = new Scanner(System.in);
+    private StringSearcher stringSearcher;
+    public Project(){
+        FileHelper.createFileEnsured("input.txt");
+        FileHelper.createFileEnsured("output.txt");
+    }
+    public void consoleProject(){
         Printer.print("Enter input file path: ", ConsoleColors.GREEN);
         String inputPath = scanner.nextLine();
         if(!FileHelper.exists(inputPath)){
@@ -10,14 +20,14 @@ public class Project {
             return;
         }
         String inputText = FileHelper.readFromFile(inputPath);
-        StringSearcher stringSearcher = new StringSearcher(inputText);
+        stringSearcher = new StringSearcher(inputText);
         Printer.print("Enter number of queries: ", ConsoleColors.GREEN);
         int numOfQueries = scanner.nextInt();
         for(int queryNum = 1; queryNum <= numOfQueries; queryNum++){
             SearchQuery sq = new SearchQuery();
             sq.readInputFromConsole();
             ArrayList<SearchMatch> matches;
-            double time = CodeTimer.measureTimeNano(() -> {stringSearcher.search(sq);}) / 1000000.0;
+            double time = CodeTimer.measureTimeNano(() -> stringSearcher.search(sq)) / 1000000.0;
             matches = stringSearcher.search(sq);
 
             String result = "Query " + queryNum + " Result\nSearch time: " + time + " ms\nCount: "
@@ -39,5 +49,8 @@ public class Project {
             FileHelper.writeOnFile(sq.getOutputPath(), result, queryNum > 1);
             Printer.printSeparator();
         }
+    }
+    public void GUIProject(){
+        SwingUtilities.invokeLater(SearcherGUI::new);
     }
 }
