@@ -30,23 +30,25 @@ public class Project {
             double time = CodeTimer.measureTimeNano(() -> stringSearcher.search(sq)) / 1000000.0;
             matches = stringSearcher.search(sq);
 
-            String result = "Query " + queryNum + " Result\nSearch time: " + time + " ms\nCount: "
-                    + matches.size() + "\nMatches: " + matches.toString() + "\n";
+            StringBuilder result = new StringBuilder();
+            result.append("Query ").append(queryNum).append(" Result\n").append("Query: ").append(sq);
+            result.append("\nSearch time: ").append(time).append(" ms\nCount: ");
+            result.append(matches.size()).append("\nMatches: ").append(matches.toString()).append("\n");
             final String[] replace = new String[1];
             if(sq.getReplaceTarget() != null && !sq.getReplaceTarget().isEmpty()){
                 double replaceTime = CodeTimer.measureTimeNano(() -> {
                         replace[0] = stringSearcher.getReplacedText(matches, sq.getReplaceTarget());
                 }) / 1000000.0;
-                result += "Replace time: " + replaceTime + " ms\n\n" + replace[0];
-                Printer.println(result, ConsoleColors.PURPLE);
+                result.append("Replace time: ").append(replaceTime).append(" ms\n\n").append(replace[0]);
+                Printer.println(result.toString(), ConsoleColors.PURPLE);
             } else {
-                Printer.println(result, ConsoleColors.PURPLE);
-                result += stringSearcher.getHighlightedText(matches);
+                Printer.println(result.toString(), ConsoleColors.PURPLE);
+                result.append(stringSearcher.getHighlightedText(matches));
                 Printer.println("Highlighted text:\n", ConsoleColors.UNDERLINE);
                 stringSearcher.printHighlightedText(matches);
             }
-            result += Printer.separator + "\n";
-            FileHelper.writeOnFile(sq.getOutputPath(), result, queryNum > 1);
+            result.append(Printer.separator).append("\n");
+            FileHelper.writeOnFile(sq.getOutputPath(), result.toString(), queryNum > 1);
             Printer.printSeparator();
         }
     }

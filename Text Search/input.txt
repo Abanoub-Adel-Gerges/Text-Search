@@ -1,12 +1,7 @@
-aff ag rg r gwe e er wet
-ewt ry t
-rt r
-t r
-j ytj ty ty 
-j tyj ty ty jtu ku hgfd twqw e 
-we
-e werwetr ery y rt yrt rtht 
-ey r rt hrthrgwe flweknflwe flew flmwg tf
-6rth tr ht r
-th
-th
+Data structures and algorithms are fun
+string searching is a core algorithm topic
+algorithms need efficient data structures
+searching strings can be tricky
+test the string searcher carefully
+patterns appear and reappear in strings
+search search search

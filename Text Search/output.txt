@@ -1,17 +1,43 @@
 Query 1 Result
-Search time: 1.0446 ms
+Query: data c=i m=SubString o=output.txt
+Search time: 0.6695 ms
 Count: 2
-Matches: [{Line: 2, Index: 0, Match: "ew"}, {Line: 9, Index: 30, Match: "ew"}]
-aff ag rg r gwe e er wet
-$ew$t ry t
-rt r
-t r
-j ytj ty ty 
-j tyj ty ty jtu ku hgfd twqw e 
-we
-e werwetr ery y rt yrt rtht 
-ey r rt hrthrgwe flweknflwe fl$ew$ flmwg tf
-6rth tr ht r
-th
-th
+Matches: [{Line: 1, Index: 0, Match: "Data"}, {Line: 3, Index: 26, Match: "data"}]
+$Data$ structures and algorithms are fun
+string searching is a core algorithm topic
+algorithms need efficient $data$ structures
+searching strings can be tricky
+test the string searcher carefully
+patterns appear and reappear in strings
+search search search
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Query 2 Result
+Query: data c=i r=@@@@ m=SubString o=output.txt
+Search time: 0.0404 ms
+Count: 2
+Matches: [{Line: 1, Index: 0, Match: "Data"}, {Line: 3, Index: 26, Match: "data"}]
+Replace time: 0.0293 ms
+
+@@@@ structures and algorithms are fun
+string searching is a core algorithm topic
+algorithms need efficient @@@@ structures
+searching strings can be tricky
+test the string searcher carefully
+patterns appear and reappear in strings
+search search search
+=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+Query 3 Result
+Query: data c=s r=@@@@ m=SubString o=output.txt
+Search time: 0.0358 ms
+Count: 1
+Matches: [{Line: 3, Index: 26, Match: "data"}]
+Replace time: 0.0108 ms
+
+Data structures and algorithms are fun
+string searching is a core algorithm topic
+algorithms need efficient @@@@ structures
+searching strings can be tricky
+test the string searcher carefully
+patterns appear and reappear in strings
+search search search
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-

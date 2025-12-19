@@ -74,4 +74,13 @@ public class SearchQuery {
     public String getReplaceTarget() {
         return replaceTarget;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(keyword).append(" c=").append((isCaseSensitive()? "s" : "i"));
+        if(replaceTarget != null && !replaceTarget.isEmpty()){sb.append(" r=").append(replaceTarget);}
+        sb.append(" m=").append(matchMode).append(" o=").append(outputPath);
+        return sb.toString();
+    }
 }

@@ -1,49 +1,103 @@
 package suffixautomaton;
 import java.util.ArrayList;
-import java.util.HashMap;
 public class SuffixAutomaton {
-    private static class State {
-        int len, link;
-        HashMap<Character, Integer> next = new HashMap<>();
-        ArrayList<Integer> endPositions = new ArrayList<>();
-    }
-    private final State[] states;
-    private int size, last;
+    private final int[] len;
+    private final int[] link;
+    private final int[] firstPos;
+    private final boolean[] isClone;
+    private final int[] head;
+    private final int[] nextEdge;
+    private final int[] edgeTo;
+    private final char[] edgeChar;
+
+    private final int[] treeHead;
+    private final int[] treeNext;
+    private final int[] treeTo;
+
+    private int size, last, edgeCount, treeEdgeCount;
+
     public SuffixAutomaton(int maxLen) {
-        states = new State[2 * maxLen];
-        states[0] = new State();
-        states[0].link = -1;
+        int nodes = 2 * maxLen + 1;
+        len = new int[nodes];
+        link = new int[nodes];
+        firstPos = new int[nodes];
+        isClone = new boolean[nodes];
+        head = new int[nodes];
+        java.util.Arrays.fill(head, -1);
+
+        int maxEdges = 3 * maxLen + 5;
+        nextEdge = new int[maxEdges];
+        edgeTo = new int[maxEdges];
+        edgeChar = new char[maxEdges];
+
+        treeHead = new int[nodes];
+        java.util.Arrays.fill(treeHead, -1);
+        treeNext = new int[nodes];
+        treeTo = new int[nodes];
+
+        link[0] = -1;
+        firstPos[0] = -1;
         size = 1;
         last = 0;
     }
+
+    private void addTransition(int u, char c, int v) {
+        int e = findEdge(u, c);
+        if (e != -1) {
+            edgeTo[e] = v;
+            return;
+        }
+        // Add new
+        edgeTo[edgeCount] = v;
+        edgeChar[edgeCount] = c;
+        nextEdge[edgeCount] = head[u];
+        head[u] = edgeCount++;
+    }
+    private int getTransition(int u, char c) {
+        int e = findEdge(u, c);
+        return (e == -1) ? -1 : edgeTo[e];
+    }
+    private int findEdge(int u, char c) {
+        for (int i = head[u]; i != -1; i = nextEdge[i]) {
+            if (edgeChar[i] == c) return i;
+        }
+        return -1;
+    }
     public void extend(char c, int position) {
         int cur = size++;
-        states[cur] = new State();
-        states[cur].len = states[last].len + 1;
-        states[cur].endPositions.add(position);
+        len[cur] = len[last] + 1;
+        firstPos[cur] = position;
+        isClone[cur] = false;
+
         int p = last;
-        while (p != -1 && !states[p].next.containsKey(c)) {
-            states[p].next.put(c, cur);
-            p = states[p].link;
+        while (p != -1 && getTransition(p, c) == -1) {
+            addTransition(p, c, cur);
+            p = link[p];
         }
+
         if (p == -1) {
-            states[cur].link = 0;
+            link[cur] = 0;
         } else {
-            int q = states[p].next.get(c);
-            if (states[p].len + 1 == states[q].len) {
-                states[cur].link = q;
+            int q = getTransition(p, c);
+            if (len[p] + 1 == len[q]) {
+                link[cur] = q;
             } else {
                 int clone = size++;
-                states[clone] = new State();
-                states[clone].len = states[p].len + 1;
-                states[clone].next.putAll(states[q].next);
-                states[clone].link = states[q].link;
-                states[clone].endPositions.addAll(states[q].endPositions);
-                while (p != -1 && states[p].next.get(c) == q) {
-                    states[p].next.put(c, clone);
-                    p = states[p].link;
+                len[clone] = len[p] + 1;
+                link[clone] = link[q];
+                firstPos[clone] = firstPos[q];
+                isClone[clone] = true;
+
+                // Copy transitions from q to clone
+                for (int i = head[q]; i != -1; i = nextEdge[i]) {
+                    addTransition(clone, edgeChar[i], edgeTo[i]);
                 }
-                states[q].link = states[cur].link = clone;
+
+                while (p != -1 && getTransition(p, c) == q) {
+                    addTransition(p, c, clone);
+                    p = link[p];
+                }
+                link[q] = link[cur] = clone;
             }
         }
         last = cur;
@@ -52,35 +106,30 @@ public class SuffixAutomaton {
         for (int i = 0; i < text.length(); i++) {
             extend(text.charAt(i), i);
         }
-        propagatePositions();
-    }
-    private void propagatePositions() {
-        int maxLen = 0;
-        for (int i = 0; i < size; i++){maxLen = Math.max(maxLen, states[i].len);}
-
-        int[] cnt = new int[maxLen + 1];
-        for (int i = 0; i < size; i++){cnt[states[i].len]++;}
-
-        for (int i = 1; i <= maxLen; i++){cnt[i] += cnt[i - 1];}
-
-        int[] order = new int[size];
-        for (int i = size - 1; i >= 0; i--){order[--cnt[states[i].len]] = i;}
-
-        for (int i = size - 1; i > 0; i--){
-            int v = order[i];
-            int parent = states[v].link;
-            if (parent >= 0){states[parent].endPositions.addAll(states[v].endPositions);}
+        // Build Link Tree for DFS
+        for (int i = 1; i < size; i++) {
+            int p = link[i];
+            treeTo[treeEdgeCount] = i;
+            treeNext[treeEdgeCount] = treeHead[p];
+            treeHead[p] = treeEdgeCount++;
         }
     }
     public ArrayList<Integer> findOccurrences(String s) {
         int v = 0;
-        for (char c : s.toCharArray()) {
-            if (!states[v].next.containsKey(c)) return new ArrayList<>();
-            v = states[v].next.get(c);
+        for (int i = 0; i < s.length(); i++) {
+            v = getTransition(v, s.charAt(i));
+            if (v == -1) return new ArrayList<>();
         }
-        int k = s.length();
         ArrayList<Integer> res = new ArrayList<>();
-        for (int end : states[v].endPositions){res.add(end - k + 1);}
+        collectPositions(v, s.length(), res);
         return res;
+    }
+    private void collectPositions(int v, int patternLen, ArrayList<Integer> res) {
+        if (v != 0 && !isClone[v]) {
+            res.add(firstPos[v] - patternLen + 1);
+        }
+        for (int i = treeHead[v]; i != -1; i = treeNext[i]) {
+            collectPositions(treeTo[i], patternLen, res);
+        }
     }
 }

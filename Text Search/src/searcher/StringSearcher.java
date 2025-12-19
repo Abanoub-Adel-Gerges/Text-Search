@@ -109,12 +109,17 @@ public class StringSearcher {
         Printer.println();
     }
     public String getReplacedText(ArrayList<SearchMatch> matches, String replacement) {
-        if (replacement == null) return originalText;
-        StringBuilder sb = new StringBuilder(originalText);
-        for (int i = matches.size() - 1; i >= 0; i--) {
-            SearchMatch m = matches.get(i);
-            int absIdx = lineStarts.get(m.lineNumber - 1) + m.startIndex;
-            sb.replace(absIdx, absIdx + m.matchedText.length(), replacement);
+        if (replacement == null || matches == null || matches.isEmpty()){return originalText;}
+        StringBuilder sb = new StringBuilder(originalText.length());
+        int lastIndex = 0;
+        for (SearchMatch m : matches) {
+            int matchStart = lineStarts.get(m.lineNumber - 1) + m.startIndex;
+            sb.append(originalText, lastIndex, matchStart);
+            sb.append(replacement);
+            lastIndex = matchStart + m.matchedText.length();
+        }
+        if (lastIndex < originalText.length()) {
+            sb.append(originalText, lastIndex, originalText.length());
         }
         return sb.toString();
     }

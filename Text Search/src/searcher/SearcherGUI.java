@@ -1,8 +1,6 @@
 package searcher;
-import helpers.CodeTimer;
-import helpers.FileHelper;
-import printer.ConsoleColors;
-import printer.Printer;
+import helpers.*;
+import printer.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -50,10 +48,10 @@ public class SearcherGUI extends JFrame {
         setLayout(new BorderLayout(10, 10));
 
 
-        // 1. Top Panel: Input File Selection
+        // Top Panel: Input File Selection
         add(createInputPanel(), BorderLayout.NORTH);
 
-        // 2. Middle Panel: Controls and Results
+        // Middle Panel: Controls and Results
         JPanel mainContent = new JPanel(new BorderLayout(5, 10));
         mainContent.add(createControlPanel(), BorderLayout.NORTH);
         mainContent.add(createResultPanel(), BorderLayout.CENTER);
@@ -61,7 +59,7 @@ public class SearcherGUI extends JFrame {
         add(mainContent, BorderLayout.CENTER);
 
         pack();
-        setSize(600, 600);
+        setSize(1000, 800);
         setLocationRelativeTo(null);
         setVisible(true);
     }
@@ -76,8 +74,13 @@ public class SearcherGUI extends JFrame {
 
         JButton browseInputButton = new JButton("Browse");
         browseInputButton.addActionListener(e -> {
+            queryNumber = 1;
             openFileChooser(inputFilePathField);
-            stringSearcher = new StringSearcher(FileHelper.readFromFile(inputFilePathField.getText()));
+            String fileContent = FileHelper.readFromFile(inputFilePathField.getText());
+            double buildTime = CodeTimer.measureTimeNano(() -> {
+                stringSearcher = new StringSearcher(fileContent);
+            }) / 1000000.0;
+            resultTextArea.setText("PreCompute time = " + buildTime + " ms\n");
         });
 
         panel.add(new JLabel(" Input File: "), BorderLayout.WEST);
@@ -103,7 +106,7 @@ public class SearcherGUI extends JFrame {
         caseSensitiveCheckBox = new JCheckBox();
         panel.add(caseSensitiveCheckBox);
 
-        panel.add(new JLabel("Replace With:"));
+        panel.add(new JLabel("Replace with (leave empty if no replacement is needed):"));
         replaceTargetField = new JTextField("");
         panel.add(replaceTargetField);
 
@@ -124,7 +127,6 @@ public class SearcherGUI extends JFrame {
         JButton executeButton = new JButton("Run Search & Replace");
         executeButton.setFont(new Font("Arial", Font.BOLD, 12));
 
-        // --- Logic added here ---
         executeButton.addActionListener(e -> {
             char caseFlag = caseSensitiveCheckBox.isSelected() ? 's' : 'i';
             String keyword = keywordField.getText();
@@ -136,16 +138,6 @@ public class SearcherGUI extends JFrame {
             SearchQuery query = new SearchQuery(caseFlag, keyword, replace, mode, outPath);
 
             // Display data in output section
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("Input Path: ").append(inputFilePathField.getText()).append("\n");
-//            sb.append("--- New Search Query Created ---\n");
-//            sb.append("Keyword: ").append(query.getKeyword()).append("\n");
-//            sb.append("Replace Target: ").append(query.getReplaceTarget()).append("\n");
-//            sb.append("Match Mode: ").append(query.getMatchMode()).append("\n");
-//            sb.append("Case Sensitive: ").append(query.isCaseSensitive()).append("\n");
-//            sb.append("Output Path: ").append(query.getOutputPath()).append("\n");
-//            sb.append("--------------------------------");
-
             resultTextArea.setText(getAndWriteResultMessage(query, queryNumber++));
         });
         panel.add(new JLabel(""));
@@ -165,10 +157,13 @@ public class SearcherGUI extends JFrame {
         return panel;
     }
     private void openFileChooser(JTextField fileField) {
+        fileChooser.setPreferredSize(new Dimension(1000, 800));
         int result = fileChooser.showOpenDialog(this);
         if (result == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
-            fileField.setText(file.getAbsolutePath());
+            if(FileHelper.exists(file.getAbsolutePath())) {
+                fileField.setText(file.getAbsolutePath());
+            }
         }
     }
     private String getAndWriteResultMessage(SearchQuery sq, int queryNum){
@@ -180,7 +175,8 @@ public class SearcherGUI extends JFrame {
         double time = CodeTimer.measureTimeNano(() -> {stringSearcher.search(sq);}) / 1000000.0;
         matches = stringSearcher.search(sq);
 
-        result.append("Query ").append(queryNum).append(" Result\nSearch time: ").append(time).append(" ms\nCount: ");
+        result.append("Query ").append(queryNum).append(" Result\n").append("Query: ").append(sq);
+        result.append("\nSearch time: ").append(time).append(" ms\nCount: ");
         result.append(matches.size()).append("\nMatches: ").append(matches.toString()).append("\n");
         final String[] replace = new String[1];
         if(sq.getReplaceTarget() != null && !sq.getReplaceTarget().isEmpty()){
