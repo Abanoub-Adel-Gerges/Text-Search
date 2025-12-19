@@ -1,8 +1,7 @@
 package searcher;
 import suffixautomaton.SuffixAutomaton;
 import printer.*;
-import java.util.ArrayList;
-import java.util.TreeSet;
+import datastructures.ArrayList;
 public class StringSearcher {
     private final String originalText;
     private final ArrayList<Integer> lineStarts;
@@ -51,9 +50,10 @@ public class StringSearcher {
         // O(k) Find all raw occurrences
         ArrayList<Integer> rawPositions = sam.findOccurrences(lookupKey);
         // Ensure unique positions and sort them to maintain file order
-        TreeSet<Integer> uniquePos = new TreeSet<>(rawPositions);
+        rawPositions.sort();
+        rawPositions.removeDuplicates();
 
-        for (int pos : uniquePos) {
+        for (int pos : rawPositions) {
             if (isValidMatch(pos, lookupKey.length(), sq.getMatchMode())) {
                 int lineNum = getLine(pos);
                 int colNum = pos - lineStarts.get(lineNum - 1);

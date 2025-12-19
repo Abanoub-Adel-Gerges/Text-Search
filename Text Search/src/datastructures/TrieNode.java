@@ -1,5 +1,4 @@
-package trie;
-import java.util.ArrayList;
+package datastructures;
 public class TrieNode {
     public TrieNode[] childrenLowerCase = new TrieNode[26];
     public TrieNode[] childrenUpperCase = new TrieNode[26];

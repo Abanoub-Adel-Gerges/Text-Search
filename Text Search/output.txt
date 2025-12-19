@@ -1,6 +1,6 @@
 Query 1 Result
 Query: data c=i m=SubString o=output.txt
-Search time: 0.6695 ms
+Search time: 0.065701 ms
 Count: 2
 Matches: [{Line: 1, Index: 0, Match: "Data"}, {Line: 3, Index: 26, Match: "data"}]
 $Data$ structures and algorithms are fun
@@ -12,15 +12,13 @@ patterns appear and reappear in strings
 search search search
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 Query 2 Result
-Query: data c=i r=@@@@ m=SubString o=output.txt
-Search time: 0.0404 ms
-Count: 2
-Matches: [{Line: 1, Index: 0, Match: "Data"}, {Line: 3, Index: 26, Match: "data"}]
-Replace time: 0.0293 ms
-
-@@@@ structures and algorithms are fun
+Query: data c=s m=SubString o=output.txt
+Search time: 0.017501 ms
+Count: 1
+Matches: [{Line: 3, Index: 26, Match: "data"}]
+Data structures and algorithms are fun
 string searching is a core algorithm topic
-algorithms need efficient @@@@ structures
+algorithms need efficient $data$ structures
 searching strings can be tricky
 test the string searcher carefully
 patterns appear and reappear in strings
@@ -28,10 +26,10 @@ search search search
 =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
 Query 3 Result
 Query: data c=s r=@@@@ m=SubString o=output.txt
-Search time: 0.0358 ms
+Search time: 0.0191 ms
 Count: 1
 Matches: [{Line: 3, Index: 26, Match: "data"}]
-Replace time: 0.0108 ms
+Replace time: 0.0087 ms
 
 Data structures and algorithms are fun
 string searching is a core algorithm topic

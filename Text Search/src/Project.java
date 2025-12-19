@@ -4,7 +4,7 @@ import searcher.*;
 
 import javax.swing.*;
 import java.util.Scanner;
-import java.util.ArrayList;
+import datastructures.ArrayList;
 public class Project {
     public static final Scanner scanner = new Scanner(System.in);
     private StringSearcher stringSearcher;

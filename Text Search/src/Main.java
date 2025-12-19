@@ -1,6 +1,4 @@
-import printer.ConsoleColors;
-import printer.Printer;
-
+import printer.*;
 public class Main {
     public static void main(String[] args) {
         try {

@@ -1,4 +1,4 @@
-package trie;
+package datastructures;
 // Prefix tree
 public class Trie {
     private TrieNode root;

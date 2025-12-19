@@ -1,5 +1,5 @@
 package suffixautomaton;
-import java.util.ArrayList;
+import datastructures.ArrayList;
 public class SuffixAutomaton {
     private final int[] len;
     private final int[] link;

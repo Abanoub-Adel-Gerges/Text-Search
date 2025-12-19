@@ -5,7 +5,7 @@ import printer.*;
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
-import java.util.ArrayList;
+import datastructures.ArrayList;
 
 public class SearcherGUI extends JFrame {
     private JTextField inputFilePathField;
